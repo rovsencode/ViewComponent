@@ -1,5 +1,6 @@
 ﻿using FirelloProject.DAL;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FirelloProject.Controllers
 {
@@ -15,9 +16,15 @@ namespace FirelloProject.Controllers
 
         public IActionResult Index()
         {
-            var connectionString = _configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
-            return Content(connectionString);
-
+            //var connectionString = _configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
+            var books = _appDbContext.Books.Include(b=>b.BookImages)
+                .Include(b => b.BookGenres)
+                .ThenInclude(bg => bg.Genre)
+                .Include(b => b.BookAuthors)
+                .ThenInclude(ba => ba.Author)
+                .ThenInclude(a=>a.SocialPage)
+                .ToList();
+            return View(books);
         }          
     }
 }
